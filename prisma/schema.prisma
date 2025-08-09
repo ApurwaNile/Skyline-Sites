@@ -1,0 +1,68 @@
+// prisma/schema.prisma
+// Prisma schema using SQLite for local dev
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Project {
+  id        Int      @id @default(autoincrement())
+  title     String
+  description String?
+  imageUrl  String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Contact {
+  id        Int      @id @default(autoincrement())
+  name      String
+  email     String
+  message   String
+  createdAt DateTime @default(now())
+}
+
+model Product {
+  id              Int        @id @default(autoincrement())
+  name            String
+  description     String?
+  imageUrl        String?
+  priceInCents    Int
+  createdAt       DateTime   @default(now())
+  updatedAt       DateTime   @updatedAt
+  orderItems      CartItem[]
+}
+
+model Customer {
+  id        Int      @id @default(autoincrement())
+  email     String   @unique
+  name      String?
+  createdAt DateTime @default(now())
+  orders    Order[]
+}
+
+model Order {
+  id            Int        @id @default(autoincrement())
+  customer      Customer?  @relation(fields: [customerId], references: [id])
+  customerId    Int?
+  totalInCents  Int
+  status        String     @default("pending")
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+  items         CartItem[]
+}
+
+model CartItem {
+  id                Int      @id @default(autoincrement())
+  order             Order    @relation(fields: [orderId], references: [id])
+  orderId           Int
+  product           Product  @relation(fields: [productId], references: [id])
+  productId         Int
+  quantity          Int
+  unitPriceInCents  Int
+  createdAt         DateTime @default(now())
+}
